@@ -8,7 +8,7 @@ import numpy as np
 import cv2
 
 def findRotMat(alpha, beta, gamma):
-    t1=np.pi*alpha/180
+  t1=np.pi*alpha/180
     t2=np.pi*beta/180
     t3=np.pi*gamma/180
     
@@ -16,7 +16,7 @@ def findRotMat(alpha, beta, gamma):
                       [np.cos(t1)*np.sin(t3)+np.sin(t1)*np.cos(t2)*np.cos(t3),-np.sin(t1)*np.sin(t3)+np.cos(t1)*np.cos(t2)*np.cos(t3),-np.sin(t2)*np.cos(t3)],
                       [np.sin(t1)*np.sin(t2),np.cos(t1)*np.sin(t2),np.cos(t2)]])
     
-    rotMat2=np.linalg.inv(rotmatptop1)
+    rotMat2=np.linalg.inv(rotMat1)
     
     return rotMat1,rotMat2
 
