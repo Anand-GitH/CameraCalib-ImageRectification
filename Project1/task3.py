@@ -12,14 +12,61 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 def rectify(pts1, pts2):
-    #...
 
+    pts1=np.array(pts1)
+    pts2=np.array(pts2)
+        
+    x=np.array(pts1[:,0])
+    y=np.array(pts1[:,1])
+    x1=np.array(pts2[:,0])
+    y1=np.array(pts2[:,1])
+    
+    x=x.reshape(x.shape[0],1)
+    y=y.reshape(y.shape[0],1)
+    x1=x1.reshape(x1.shape[0],1)
+    y1=y1.reshape(y1.shape[0],1)
+    
+    n=x.shape[0]
+    M=np.empty((n,9))
+    
+    #Eight point algorithm - Linear combination of equations to calculate fundamental matrix AF=0
+    for i in range(n):
+        M[i]=np.array([x1[i]*x[i], x1[i]*y[i], x1[i], y1[i]*x[i], y1[i]*y[i], y1[i], x[i], y[i], 1])
+    
+    #AF=0 solve for F using SVD
+    U, S, VT = np.linalg.svd(M)
 
+    funmat=VT[-1]
+    funmat=funmat.reshape(3,3).T
+    
+    return funmat
 
 def draw_epilines(img1, img2, pt1, pt2, fmat):
-    #...
+    
+    img1 = cvtColor(img1,COLOR_RGB2BGR)
+    img2 = cvtColor(img2,COLOR_RGB2BGR)
+    color=(0,255,0)
+    
+    #Find and mark the points and epilines on left image- Triangularization
+    ll=computeCorrespondEpilines(np.array([list(pt2)]),1,fmat)
+    ll = ll.reshape(3)
+    lr, lc, ld = img1.shape 
+    x, y = map(int, [0, -ll[2] / ll[1]]) 
+    x1,y1 = map(int,[lc, -(ll[2] + ll[0] * lc) / ll[1]]) 
+    img1 = line(img1,(x, y), (x1, y1), color, 2) 
+    img1 = circle(img1,tuple(np.float32(pt1)), 10, color, -1) 
+    
+    
+    #Find and mark the points and epilines on right image- Triangularization
+    rl=computeCorrespondEpilines(np.array([list(pt1)]),2,fmat)
+    rl=rl.reshape(3)
+    rr, rc, rd = img2.shape 
+    x, y = map(int, [0, -rl[2] / rl[1]]) 
+    x1,y1 = map(int,[rc, -(rl[2] + rl[0] * rc) / rl[1]]) 
+    img2 = line(img2,(x, y), (x1, y1), color, 2) 
+    img2 = circle(img2,tuple(np.float32(pt2)), 10, color, -1) 
 
-
+    return img1,img2
 
 def checkFunMat(pts1, pts2, fundMat):
     N = len(pts1)
